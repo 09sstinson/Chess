@@ -10,12 +10,12 @@ public class Board {
     //setUpBoard
     //Initialise pieces to start game
 
-    public void movePiece(Piece piece, int[] pos){
+    public void movePiece(Piece piece, Position position){
 
         // split up logic could make return boolean
-        if(isInBoard(pos) && piece.isValidMove(pos)) {
+        if(position.isInBoard(size) && piece.isValidMove(position)) {
             if(hasFriendlyPiece()){
-                piece.pos = pos;
+                piece.position = position;
                 //removePieceAtPosition();
             }else{
                 //Move not valid
@@ -28,10 +28,10 @@ public class Board {
         return false;
     }
 
-    public boolean isPositionFilled(int[] pos){
+    public boolean isPositionFilled(Position position){
 
             for(Piece piece : pieces){
-                if(Arrays.equals(pos, piece.pos)){
+                if(piece.position.isEqual(position)){
                     return true;
                 }
             }
@@ -48,7 +48,7 @@ public class Board {
     }
 
     public void initialiseFrontRow(){
-        Piece pawn = new Pawn(Colour.BLACK, new int[] {1,1});
+       // Piece pawn = new Pawn(Colour.BLACK, new int[] {1,1});
     }
 
     public void initialiseBackRow(){
@@ -57,16 +57,6 @@ public class Board {
 
     public boolean isFilled(){
         return false;
-    }
-
-    public boolean isInBoard(int[] pos){
-
-        return isInRange(pos[0]) && isInRange(pos[1]);
-
-    }
-
-    public boolean isInRange(int pos){
-        return pos < size && pos >=0;
     }
 
     public int getIndexOfPiece(){
