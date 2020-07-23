@@ -4,10 +4,11 @@ public abstract class Piece {
 
     int[] pos;
     Colour colour;
+    Position position;
 
-    Piece(Colour colour, int[] pos){
+    Piece(Colour colour, int x, int y){
         this.colour = colour;
-        this.pos = pos;
+        this.position = new Position(x,y);
     }
 
     public abstract boolean isValidMove(int[] pos);
@@ -38,4 +39,5 @@ public abstract class Piece {
         }
         return true;
     }
+
 }
