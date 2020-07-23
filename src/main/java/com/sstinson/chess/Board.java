@@ -20,13 +20,14 @@ public class Board {
     }
 
     public void initialiseFrontRow(){
-
+        int[] myarray = {1,1};
+        Piece pawn = new Pawn(Colour.BLACK, myarray);
     }
 
     public void initialiseBackRow(){
 
     }
-    
+
     public boolean isFilled(){
         return false;
     }

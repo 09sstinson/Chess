@@ -5,6 +5,11 @@ public abstract class Piece {
     int[] pos;
     Colour colour;
 
+    Piece(Colour colour, int[] pos){
+        this.colour = colour;
+        this.pos = pos;
+    }
+
     public abstract boolean isValidMove(int[] pos);
 
     public int[] minusIntArray(int[] pos, int[] pos1){
