@@ -7,7 +7,15 @@ public class ChessTest {
 
     Board b = new Board();
     Position p1 = new Position(8, 9);
-    Position p2 = new Position(7, 7);
+    Position p2 = new Position(2, 2);
+
+    Piece piece1 = new Pawn(Colour.BLACK, 1 , 1);
+    Piece piece2 = new Pawn(Colour.BLACK, 3 , 1);
+    Piece piece3 = new Pawn(Colour.BLACK, 2 , 2);
+    Piece piece4 = new Pawn(Colour.BLACK, 2 , 2);
+    Piece piece5 = new Pawn(Colour.WHITE, 2 ,2);
+
+
 
     @Test
     public void testIsInBoard(){
@@ -22,11 +30,45 @@ public class ChessTest {
 
     @Test
     public void testIsPosFilled(){
-//        Board b = new Board();
-//        b.pieces[0] = new Pawn(Colour.BLACK, new int[] {1,1});
-//        b.pieces[1] = new Pawn(Colour.BLACK, new int[] {3,1});
-//        b.pieces[2] = new Pawn(Colour.BLACK, new int[] {2,2});
-//        assertEquals(b.isPositionFilled(new int[] {2,2}), true);
-//        assertEquals(b.isPositionFilled(new int[] {1,2}), false);
+        b.appendPiece(piece1);
+        b.appendPiece( piece3);
+        b.appendPiece (piece2);
+        assertEquals(b.isPositionFilled(2,2), true);
+        assertEquals(b.isPositionFilled(1,2), false);
+    }
+
+    @Test
+    public void testEqualsPiece(){
+        assertFalse(piece1.equals(piece2));
+        assertTrue(piece1.equals(piece1));
+        assertTrue(piece3.equals(piece4));
+        assertFalse(piece4.equals(piece5));
+
+    }
+
+    @Test
+    public void testRemovePiece(){
+        b.appendPiece(piece1);
+        b.appendPiece( piece3);
+        b.appendPiece (piece2);
+        assertEquals(b.pieces.length, 3);
+        b.removePiece(piece1);
+        assertEquals(b.pieces.length, 2);
+        assertTrue(b.pieces[0] == piece3);
+        assertTrue(b.pieces[1] == piece2);
+
+    }
+
+    @Test
+    public void testHasFriendlyPiece(){
+        b.appendPiece(piece1);
+        b.appendPiece(piece3);
+        assertTrue(b.hasFriendlyPiece(piece1, p2));
+        assertFalse(b.hasFriendlyPiece(piece1, p1));
+    }
+
+    @Test
+    public void testTryMovePiece(){
+
     }
 }

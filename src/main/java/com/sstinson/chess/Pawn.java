@@ -13,7 +13,7 @@ public class Pawn extends Piece{
         // x position must be the same and y position must be one more
 
         Position difference = position.minus(position1);
-        return difference.isEqual(0,1);
+        return difference.equals(0,1);
     }
 
     public boolean isValidTake(){

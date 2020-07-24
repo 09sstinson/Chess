@@ -12,5 +12,20 @@ public abstract class Piece {
 
     public abstract boolean isValidMove(Position position);
 
+    @Override
+    public boolean equals(Object o){
+
+        if(o == this){
+            return true;
+        }
+
+        if(!(o instanceof Piece)){
+            return false;
+        }
+
+        Piece piece = (Piece) o;
+
+        return piece.position.equals(this.position) && this.colour == piece.colour;
+    }
 
 }

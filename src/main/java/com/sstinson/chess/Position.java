@@ -10,11 +10,11 @@ public class Position {
     }
 
 
-    public boolean isEqual(Position position){
+    public boolean equals(Position position){
         return x == position.x && y == position.y;
     }
 
-    public boolean isEqual(int x, int y){
+    public boolean equals(int x, int y){
         return this.x == x && this.y == y;
     }
 
