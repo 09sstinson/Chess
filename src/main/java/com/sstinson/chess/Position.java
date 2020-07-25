@@ -28,8 +28,23 @@ public class Position {
     }
 
     public boolean isInBoard(int size){
-        boolean b1 = x < size && x >= 0;
-        boolean b2 = y < size && y >= 0;
-        return b1 && b2;
+        return (x < size && x >= 0) && (y < size && y >= 0);
     }
+
+    public boolean sameRow(Position position1){
+        Position difference = minus(position1);
+        return difference.y == 0 && difference.x !=0;
+    }
+
+    public boolean sameColumn(Position position1){
+        Position difference = minus(position1);
+        return difference.x == 0 && difference.y !=0;
+    }
+
+    public boolean isDiagonal(Position position1){
+        Position difference = minus(position1);
+        // If both are true then position1 and position are the same
+        return (difference.x == difference.y) ^ (difference.x == -difference.y);
+    }
+
 }

@@ -25,7 +25,7 @@ public class ChessTest {
 
     @Test
     public void testDistanceSquared(){
-        assertEquals(p1.distanceSquared(p2), 5);
+        assertEquals(p1.distanceSquared(p2), 85);
     }
 
     @Test
@@ -47,19 +47,6 @@ public class ChessTest {
     }
 
     @Test
-    public void testRemovePiece(){
-        b.appendPiece(piece1);
-        b.appendPiece( piece3);
-        b.appendPiece (piece2);
-        assertEquals(b.pieces.length, 3);
-        b.removePiece(piece1);
-        assertEquals(b.pieces.length, 2);
-        assertTrue(b.pieces[0] == piece3);
-        assertTrue(b.pieces[1] == piece2);
-
-    }
-
-    @Test
     public void testHasFriendlyPiece(){
         b.appendPiece(piece1);
         b.appendPiece(piece3);
@@ -70,5 +57,18 @@ public class ChessTest {
     @Test
     public void testTryMovePiece(){
 
+    }
+
+    @Test
+    public void testPrintPieces(){
+        b.printPieces();
+    }
+
+    @Test
+    public void testPrintBoard(){
+        b.printBoard();
+        b.pieces[0].position = new Position(2,3);
+        b.printBoard();
+        System.out.println(b.tryMovePiece(b.pieces[0],new Position (2,4)));
     }
 }

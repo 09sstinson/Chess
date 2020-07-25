@@ -11,7 +11,7 @@ public class Board {
     //Initialise pieces to start game
 
     Board(){
-        initialisePawns();
+        initialiseBoard();
     }
 
     public boolean tryMovePiece(Piece piece, Position position){
@@ -62,25 +62,54 @@ public class Board {
         return null;
     }
 
+    public Piece getPieceAtPosition(int x, int y){
+        Position position = new Position(x,y);
+        return getPieceAtPosition(position);
+    }
+
 
     public void takePiece(){
 
     }
 
     public void initialiseBoard(){
-
+        initialisePawns();
+        initialiseBackRow();
     }
 
     public void initialisePawns(){
         for(int i = 0; i<size; i++){
-            Pawn whitePawn = new Pawn( Colour.WHITE, i, 1 );
-            Pawn blackPawn = new Pawn(Colour.BLACK, i, 6);
-            appendPiece(whitePawn);
-            appendPiece(blackPawn);
+            appendPiece(new Pawn(Colour.BLACK, i, 1 ), new Pawn(Colour.WHITE, i, 6));
         }
     }
 
     public void initialiseBackRow(){
+
+        PieceType[] types;
+        types = new PieceType[] {PieceType.CASTLE, PieceType.KNIGHT, PieceType.BISHOP,
+                                    PieceType.QUEEN, PieceType.KING, PieceType.BISHOP,
+                                                    PieceType.KNIGHT, PieceType.CASTLE};
+        initialiseRow(types, 0, Colour.BLACK);
+        initialiseRow(types, 7, Colour.WHITE);
+    }
+
+    public void initialiseRow(PieceType[] types, int row, Colour colour){
+        // be given some names of pieces and initialise them; e,g (pawn, pawn, pawn, castle, castle,... king)
+        if(types.length != size){
+            System.out.println("ERROR too few types");
+            return;
+        }
+            int i = 0;
+            for (PieceType type : types) {
+                switch (type) {
+                    case PAWN: appendPiece(new Pawn(colour, i++, row )); break;
+                    case CASTLE: appendPiece(new Castle(colour, i++, row)); break;
+                    case KNIGHT: appendPiece(new Knight(colour, i++, row)); break;
+                    case BISHOP: appendPiece(new Bishop(colour, i++, row)); break;
+                    case QUEEN: appendPiece(new Queen(colour, i++, row)); break;
+                    case KING: appendPiece(new King(colour, i++, row)); break;
+                }
+            }
 
     }
 
@@ -128,5 +157,52 @@ public class Board {
         }
         newPieces[pieces.length] = piece;
         pieces = newPieces;
+    }
+
+    public void appendPiece(Piece... newPieces){
+        for(Piece piece : newPieces){
+            appendPiece(piece);
+        }
+    }
+    public void printPieces(){
+        for(Piece piece : pieces){
+            System.out.println(piece.getType() + " position " + piece.position.x + " " + piece.position.y);
+        }
+    }
+
+    public void printBoard(){
+        Piece p;
+        int index = size;
+        String row = index + " ";
+        for(int j = size - 1 ; j >= 0 ; j--){
+            for(int i = 0; i < size; i++){
+                p = getPieceAtPosition(i,j);
+                if(p == null ){
+                    row = row + "[ ] ";
+                }else{
+                    switch(p.colour) {
+                        case WHITE:
+                            row = row + (char)27 + "[30m" + "[" + p.getType() + "] ";
+                            break;
+                        case BLACK:
+                            row = row + (char)27 + "[30m" + "[" + (char)27 + "[31m";
+                            row = row + p.getType() + (char)27 + "[30m" + "] ";
+                            break;
+                    }
+                }
+            }
+            System.out.println(row);
+            row = --index + " ";
+        }
+        printLowerIndex();
+    }
+
+    public void printLowerIndex(){
+        String row = "";
+        for(int i = 1; i <= size; i++){
+            row = row + "   " + i;
+        }
+        System.out.println(row);
+        System.out.println("\n");
     }
 }
