@@ -5,6 +5,7 @@ public abstract class Piece {
     Colour colour;
     Position position;
     PieceType type;
+    int moveCounter = 0;
 
     Piece(Colour colour, int x, int y){
         this.colour = colour;
@@ -32,6 +33,7 @@ public abstract class Piece {
 
         return piece.position.equals(this.position) && this.colour == piece.colour;
     }
+
 
 
 

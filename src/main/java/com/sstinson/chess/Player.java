@@ -2,6 +2,10 @@ package com.sstinson.chess;
 
 public class Player {
     int playerNum;
-    String playerName;
+    Colour colour;
+
+    Player(Colour colour){
+        this.colour = colour;
+    }
 
 }

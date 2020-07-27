@@ -9,6 +9,11 @@ public class Position {
         this.y = y;
     }
 
+    Position(int[] ints){
+        this.x = ints[0];
+        this.y = ints[1];
+    }
+
 
     public boolean equals(Position position){
         return x == position.x && y == position.y;
@@ -27,8 +32,8 @@ public class Position {
         return difference.x * difference.x + difference.y * difference.y;
     }
 
-    public boolean isInBoard(int size){
-        return (x < size && x >= 0) && (y < size && y >= 0);
+    public boolean isInBoard(){
+        return (x < Board.size && x >= 0) && (y < Board.size && y >= 0);
     }
 
     public boolean sameRow(Position position1){
@@ -45,6 +50,10 @@ public class Position {
         Position difference = minus(position1);
         // If both are true then position1 and position are the same
         return (difference.x == difference.y) ^ (difference.x == -difference.y);
+    }
+
+    public String toString(){
+        return (x+1) + " " + (y+1);
     }
 
 }

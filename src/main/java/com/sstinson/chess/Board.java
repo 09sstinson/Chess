@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Board {
     // need to initialise board
-    public final int size = 8;
+    public static final int size = 8;
     public Piece[] pieces;
 
     //setUpBoard
@@ -16,7 +16,23 @@ public class Board {
 
     public boolean tryMovePiece(Piece piece, Position position){
 
-        return position.isInBoard(size) && piece.isValidMove(position) && !hasFriendlyPiece(piece, position);
+        return position.isInBoard() && piece.isValidMove(position) && !hasFriendlyPiece(piece, position);
+    }
+
+    public boolean trySpecialMove(Piece piece, Position position){
+        // move diagonal check in to pawn class
+        if(piece instanceof Pawn){
+            Pawn pawn = (Pawn) piece;
+            boolean take =  (hasEnemyPiece(piece, position) && pawn.isValidTake(position));
+            boolean firstMove = pawn.isValidFirstMove(position);
+            return firstMove || take;
+        }
+        return false;
+    }
+
+
+    public boolean hasEnemyPiece(Piece piece, Position position){
+        return isPositionFilled(position) && !hasFriendlyPiece(piece, position);
     }
 
     public void movePiece(Piece piece, Position position){
@@ -26,6 +42,7 @@ public class Board {
             removePiece(newPiece);
         }
         piece.position = position;
+        piece.moveCounter++;
     }
 
 
@@ -37,6 +54,15 @@ public class Board {
             } else{
                 return piece.colour == newPiece.colour;
             }
+    }
+
+    public boolean hasFriendlyPiece(Colour colour, Position position){
+        Piece newPiece = getPieceAtPosition(position);
+        if(newPiece == null){
+            return false;
+        } else{
+            return colour == newPiece.colour;
+        }
     }
 
     public boolean isPositionFilled(Position position){
@@ -173,7 +199,7 @@ public class Board {
     public void printBoard(){
         Piece p;
         int index = size;
-        String row = index + " ";
+        String row = "";
         for(int j = size - 1 ; j >= 0 ; j--){
             for(int i = 0; i < size; i++){
                 p = getPieceAtPosition(i,j);
@@ -191,16 +217,16 @@ public class Board {
                     }
                 }
             }
-            System.out.println(row);
-            row = --index + " ";
+            System.out.println(row + index--);
+            row = "";
         }
         printLowerIndex();
     }
 
     public void printLowerIndex(){
-        String row = "";
+        String row = " ";
         for(int i = 1; i <= size; i++){
-            row = row + "   " + i;
+            row = row + i + "   " ;
         }
         System.out.println(row);
         System.out.println("\n");

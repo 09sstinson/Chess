@@ -19,8 +19,8 @@ public class ChessTest {
 
     @Test
     public void testIsInBoard(){
-        assertEquals(p2.isInBoard(b.size), true);
-        assertEquals(p1.isInBoard(b.size), false);
+        assertEquals(p2.isInBoard(), true);
+        assertEquals(p1.isInBoard(), false);
     }
 
     @Test
@@ -70,5 +70,12 @@ public class ChessTest {
         b.pieces[0].position = new Position(2,3);
         b.printBoard();
         System.out.println(b.tryMovePiece(b.pieces[0],new Position (2,4)));
+    }
+
+    @Test
+    public void testGetInputFromPlayer(){
+        InputHandler i = new InputHandler(b);
+        i.getPositionFromPlayer();
+
     }
 }
