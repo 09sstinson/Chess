@@ -14,6 +14,10 @@ public abstract class Piece {
 
     public abstract boolean isValidMove(Position position);
 
+    public boolean isValidTake(Position position){
+        return isValidMove(position);
+    }
+
     public String getType(){
         return type.toString();
     }
@@ -34,7 +38,13 @@ public abstract class Piece {
         return piece.position.equals(this.position) && this.colour == piece.colour;
     }
 
-
+    public Colour getEnemyColour(){
+        switch(colour){
+            case YELLOW: return Colour.BLUE;
+            case BLUE: return Colour.YELLOW;
+            default: System.out.println("Error in getEnemyColour()");return null;
+        }
+    }
 
 
 }

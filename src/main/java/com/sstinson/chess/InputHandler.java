@@ -14,7 +14,7 @@ public class InputHandler {
     public Piece getPieceFromPlayer(Player player){
         Position position;
 
-        System.out.println("Enter the coordinates of the piece you want to move");
+        System.out.println(player.colour + " player: enter the coordinates of the piece you want to move");
         position = getPositionFromPlayer();
         while(!board.hasFriendlyPiece(player.colour, position)){
             System.out.println("There is not a friendly piece at that position\n" +
@@ -23,6 +23,10 @@ public class InputHandler {
         }
         Piece piece = board.getPieceAtPosition(position);
         System.out.println("You have selected the " + piece.getType() + " at position " + position.toString());
+        if(!board.canTakeTurn(piece)){
+            System.out.println("That piece cannot make any moves.");
+            piece = getPieceFromPlayer(player);
+        }
         return piece;
     }
 
@@ -32,7 +36,7 @@ public class InputHandler {
         System.out.println("Enter the coordinates you want to move the " + piece.getType() + " to");
 
         position = getPositionFromPlayer();
-        while(!board.tryMovePiece(piece, position) && !board.trySpecialMove(piece,position)){
+        while(!board.tryTakeTurn(piece, position)  ){
             System.out.println("Cannot move there. Enter a different position");
             position = getPositionFromPlayer();
         }
@@ -47,15 +51,14 @@ public class InputHandler {
         position = new Position(vals[0]-1, vals[1]-1);
         while (!position.isInBoard()){
             System.out.println("Position not on board. Enter a position that is on the board");
+            vals = getIntsFromPlayer();
             position = new Position(vals[0]-1, vals[1]-1);
         }
+
         return position;
     }
 
     public int[] getIntsFromPlayer(){
-
-//        int x = getIntFromUser();
-//        int y = getIntFromUser();
 
         int[] out = tryGetIntsFromPlayer();
         while(out == null){
@@ -65,10 +68,31 @@ public class InputHandler {
         }
         scn = new Scanner(System.in);
         // resets the scanner
-        //scn = new Scanner(System.in);
-        //Position position = new Position(x,y);
-        //Position position = new Position(out[0],out[1]);
         return out;
+    }
+
+    public PieceType getPieceTypeFromPlayer(){
+        System.out.println("Promotion! Enter the piece you want to promote the pawn to: Q, B, H, or C");
+        PieceType type = tryGetPieceTypeFromPlayer();
+        while(type == null){
+            System.out.println("Enter the piece you want to promote the pawn to: Q, B, H, or C");
+            scn = new Scanner(System.in);
+            type = tryGetPieceTypeFromPlayer();
+        }
+        scn = new Scanner(System.in);
+        return type;
+    }
+
+    public PieceType tryGetPieceTypeFromPlayer(){
+        String str = scn.nextLine();
+        switch(str){
+            case "Q": return PieceType.QUEEN;
+            case "H": return PieceType.KNIGHT;
+            case "C": return PieceType.CASTLE;
+            case "B": return PieceType.BISHOP;
+            default: return null;
+
+        }
     }
 
     public int[] tryGetIntsFromPlayer(){

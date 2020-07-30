@@ -8,10 +8,10 @@ public enum PieceType {
         switch(this) {
             case PAWN: return "P";
             case CASTLE: return "C";
-            case KNIGHT: return "K";
+            case KNIGHT: return "H";
             case BISHOP: return "B";
             case QUEEN: return "Q";
-            case KING: return "X";
+            case KING: return "K";
             default: return "ERROR";
         }
     }

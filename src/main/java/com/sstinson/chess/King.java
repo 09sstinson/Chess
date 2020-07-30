@@ -12,4 +12,8 @@ public class King extends Piece {
     public boolean isValidMove(Position position1){
         return position.distanceSquared(position1) <= 2 && position.distanceSquared(position1) != 0;
     }
+
+    public boolean isValidCastle(Position position1){
+        return position1.minus(position).equals(2,0) || position1.minus(position).equals(-2,0);
+    }
 }
