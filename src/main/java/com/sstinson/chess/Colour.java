@@ -1,12 +1,12 @@
 package com.sstinson.chess;
 
 public enum Colour {
-    YELLOW, BLUE;
+    YELLOW, RED;
 
     public String toString(){
         switch(this){
             case YELLOW: return "Yellow";
-            case BLUE: return "Blue";
+            case RED: return "Red";
             default: System.out.println("Error"); return "";
         }
     }

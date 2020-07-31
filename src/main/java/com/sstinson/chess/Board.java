@@ -1,44 +1,47 @@
 package com.sstinson.chess;
 
-// add checkEnPassant function, will need moveHistory or lastMovedPiece
-// add checkCheckMate function, will need to check if a friendly move puts the king in check,
-//      will also need to check if a friendly piece can obstruct a piece to remove check
-// add checkKingCastle function to tryMovePiece function
-// add promotePawn method
 public class Board {
 
     public static final int size = 8;
-    public Piece[] pieces;
-    public Piece lastMovedPiece;
+    public Piece[] pieces; // contains all the pieces currently on the board
+    public Piece lastMovedPiece; // stores the last moved piece for the checkEnPassant method
 
     Board(){
         initialiseBoard();
     }
 
-    // dont need isInBoard
+    // Returns true if the piece can move to the position (does not include taking the position)
     public boolean tryMovePiece(Piece piece, Position position){
 
-        return position.isInBoard() &&
+        return position.isInGrid(size) &&
                 (piece.isValidMove(position) || checkEnPassant(piece, position) || checkCastle(piece, position)) &&
                 !isPositionFilled(position) && !isMoveObstructed(piece, position) &&
                 !willFriendlyKingBeChecked(piece,position);
     }
 
+    // Returns true if the piece can move or take the position
     public boolean tryTakeTurn(Piece piece, Position position){
         return tryMovePiece(piece, position) || tryTakePiece(piece, position);
     }
 
+    // Returns true if the piece can take the position
     public boolean tryTakePiece(Piece piece, Position position){
         return canTakePosition(piece, position) && hasEnemyPiece(piece, position);
     }
 
-    // Assuming the position is filled with an enemy piece could the piece take it
+    // Returns true if the piece could take take the position,
+    // assuming the position is filled with an enemy piece.
+    // Note: this method does not check if the position can be taken by using an en passant move.
+    //       This is because it could not take any piece at that position, only a pawn that has
+    //       moved by 2 spaces last turn. Thus the en passant is classed as a move and not a take.
     public boolean canTakePosition(Piece piece, Position position){
-        return position.isInBoard() && piece.isValidTake(position) &&
+        return position.isInGrid(size) && piece.isValidTake(position) &&
                 !isMoveObstructed(piece, position) &&
                 !willFriendlyKingBeChecked(piece,position);
     }
 
+    // Returns true if the piece can be promoted
+    // i.e if it is a Pawn and it is at the correct y value for promotion
     public boolean checkPromotion(Piece piece){
         if(piece.type == PieceType.PAWN){
             Pawn pawn = (Pawn) piece;
@@ -48,19 +51,21 @@ public class Board {
         return false;
     }
 
+    // When a king performs a castle move, this method moves the castle into the correct spot
     public void resolveCastle(Piece piece, Position position){
         if(checkCastle(piece, position)){
-            Piece castle = getPieceAtPosition(position.closestCorner());
+            Piece castle = getPieceAtPosition(position.closestCorner(Board.size));
             Position[] positions = piece.position.getPositionsInBetween(position);
             castle.position = positions[0];
             castle.moveCounter++;
         }
     }
 
+    // Returns true if the piece can perform a castle by moving to the position
     public boolean checkCastle(Piece piece, Position position) {
         if(piece.type == PieceType.KING){
             King king = (King) piece;
-            Piece newPiece = getPieceAtPosition(position.closestCorner());
+            Piece newPiece = getPieceAtPosition(position.closestCorner(Board.size));
             if(newPiece == null){
                 return false;
             }
@@ -81,6 +86,7 @@ public class Board {
     }
 
 
+    // When a pawn performs a en passant move, this method removes the piece directly behind the pawn
     public void resolveEnPassant(Piece piece, Position position){
         if(checkEnPassant(piece, position)){
             Pawn pawn = (Pawn) piece;
@@ -88,6 +94,7 @@ public class Board {
         }
     }
 
+    // Returns true if the piece can perform an en passant move by moving to the position
     public boolean checkEnPassant(Piece piece, Position position){
         if(piece.type == PieceType.PAWN){
             Pawn pawn = (Pawn) piece;
@@ -107,11 +114,14 @@ public class Board {
         return false;
     }
 
+    // When a piece is promoted, this method replaces it with a new piece of the given type
+    // at the same position and with the same colour as the original piece
     public void resolvePromotion(Piece piece, PieceType pieceType){
         int index = getIndexOfPiece(piece);
         pieces[index] = createPieceByPieceType(pieceType, piece.colour, piece.position);
     }
 
+    // Returns a piece of the given type at the given position with the given colour
     public Piece createPieceByPieceType(PieceType type, Colour colour, Position position){
         switch(type){
             case KING: return new King(colour, position.x, position.y);
@@ -124,6 +134,8 @@ public class Board {
         }
     }
 
+    // Returns true if the given position is controlled by the given colour
+    // i.e if any piece of the given colour could take a piece at that position
     public boolean isPositionControlled(Position position, Colour colour){
         for(Piece piece: pieces){
             if(piece.colour == colour){
@@ -134,7 +146,10 @@ public class Board {
         }
         return false;
     }
-    public BoardState checkCheckMate(Colour colour){
+
+        // Returns BoardState.CHECKMATE if the king of the given colour is in checkmate.
+        // Otherwise returns BoardState.ACTIVE
+        public BoardState checkCheckMate(Colour colour){
         if(isFriendlyKingChecked(colour)){
             if(!canFriendlyPieceTakeTurn(colour)){
                 return BoardState.CHECKMATE;
@@ -143,6 +158,9 @@ public class Board {
         return BoardState.ACTIVE;
     }
 
+    // Returns BoardState.STALEMATE if the king of the given colour is not in check
+    // but no other pieces of that colour can take a turn.
+    // Otherwise returns BoardState.ACTIVE
     public BoardState checkStaleMate(Colour colour){
         if(!isFriendlyKingChecked(colour)){
             if(!canFriendlyPieceTakeTurn(colour)){
@@ -152,6 +170,7 @@ public class Board {
        return BoardState.ACTIVE;
     }
 
+    // Returns true if any piece of the given colour can take a turn
     public boolean canFriendlyPieceTakeTurn(Colour colour){
         for(Piece piece: pieces){
             //Java uses short circuit evaluation so canTakeTurn only checked if piece.colour == colour
@@ -161,6 +180,8 @@ public class Board {
         }
         return false;
     }
+
+    // Returns true if the given piece can take a turn
     public boolean canTakeTurn(Piece piece) {
         Position[] positions = getAllPositionsOnBoard();
         for (Position position : positions) {
@@ -171,20 +192,19 @@ public class Board {
         return false;
     }
 
-    public boolean isFriendlyKingChecked(Piece piece){
-        Piece king = getKing(piece.colour);
-        return isPositionControlled(king.position, piece.getEnemyColour());
-    }
-
+    // Returns true if the king of the given colour is checked
     public boolean isFriendlyKingChecked(Colour colour){
         Piece king = getKing(colour);
         if(colour == colour.YELLOW) {
-            return isPositionControlled(king.position, colour.BLUE);
+            return isPositionControlled(king.position, colour.RED);
         }else{
             return isPositionControlled(king.position, colour.YELLOW);
         }
     }
 
+    // Returns the king of the given colour
+    // Note: this method assumes there is only one king of each colour
+    // so will need changing if implementing a version of chess with more than one king per colour
     public Piece getKing(Colour colour){
         for(Piece piece: pieces){
             if (piece.colour == colour && piece.type == PieceType.KING) {
@@ -195,7 +215,9 @@ public class Board {
         return null;
     }
 
-    // Returns true if moving the piece to the position will cause the king to be in check
+    // Returns true if moving the given piece to the given position will cause the
+    // king of the piece to be in check
+    // Bug: does not check if en passant will remove king from check
     public boolean willFriendlyKingBeChecked(Piece piece, Position position){
 
             if(containsEnemyKing(piece, position)){
@@ -220,11 +242,15 @@ public class Board {
             return bool;
     }
 
+    // Returns true if the given position contains
+    // the king of the opposite colour to the given piece
     public boolean containsEnemyKing(Piece piece, Position position){
         Piece king = getKing(piece.getEnemyColour());
         return position.equals(king.position);
     }
 
+    // Returns true if there are any pieces blocking the path from
+    // the given piece's current position to the given position
     public boolean isMoveObstructed(Piece piece, Position position){
         Position[] positions = position.getPositionsInBetween(piece.position);
         if(positions == null){
@@ -239,11 +265,16 @@ public class Board {
     }
 
 
+    // Returns true if the given position contains a piece
+    // of the opposite colour to the given piece
     public boolean hasEnemyPiece(Piece piece, Position position){
         return isPositionFilled(position) && !hasFriendlyPiece(piece, position);
     }
 
-    public void resolveMove(Piece piece, Position position){
+    // Performs the necessary operations for the given piece to take its turn to the given position
+    // Resolves any special moves, removes taken piece if necessary, changes the position,
+    // increments the movecounter and updates the last moved piece
+    public void resolveTurn(Piece piece, Position position){
         resolveEnPassant(piece, position);
         resolveCastle(piece, position);
         if(isPositionFilled(position)){
@@ -257,15 +288,10 @@ public class Board {
 
 
 
-    public boolean hasFriendlyPiece(Piece piece, Position position){
-            Piece newPiece = getPieceAtPosition(position);
-            if(newPiece == null){
-                return false;
-            } else{
-                return piece.colour == newPiece.colour;
-            }
-    }
 
+
+
+    // Returns true if the given position contains a piece of the given colour
     public boolean hasFriendlyPiece(Colour colour, Position position){
         Piece newPiece = getPieceAtPosition(position);
         if(newPiece == null){
@@ -274,11 +300,15 @@ public class Board {
             return colour == newPiece.colour;
         }
     }
-
-    public boolean isPositionFilled(Position position){
-        return isPositionFilled(position.x, position.y);
+    // Same as above but using the given piece's colour as the colour
+    public boolean hasFriendlyPiece(Piece piece, Position position){
+        return hasFriendlyPiece(piece.colour, position);
     }
 
+
+
+
+    // Returns true if a there is a piece at the given x and y coordinates
     public boolean isPositionFilled(int x, int y){
 
         for(Piece piece : pieces){
@@ -289,6 +319,13 @@ public class Board {
         return false;
     }
 
+    // Returns true if a there is a piece at the given position
+    public boolean isPositionFilled(Position position){
+        return isPositionFilled(position.x, position.y);
+    }
+
+    // Returns the piece at the given position
+    // If there is no piece at the position then returns null
     public Piece getPieceAtPosition(Position position){
         for(Piece piece: pieces){
             if(piece.position.equals(position)){
@@ -298,22 +335,33 @@ public class Board {
         return null;
     }
 
-    public Piece getPieceAtPosition(int x, int y){
-        Position position = new Position(x,y);
-        return getPieceAtPosition(position);
-    }
-
+    // Initialises the front and back row of pieces for both colours
     public void initialiseBoard(){
         initialisePawns();
         initialiseBackRow();
     }
 
+    // Adds the front row of pawns to the board for both players
     public void initialisePawns(){
         for(int i = 0; i<size; i++){
-            appendPiece(new Pawn(Colour.BLUE, i, 1 ), new Pawn(Colour.YELLOW, i, 6));
+            appendPiece(new Pawn(Colour.RED, i, 1 ), new Pawn(Colour.YELLOW, i, 6));
         }
     }
 
+    // Adds the back row of pieces to the board for both players
+    public void initialiseBackRow(){
+
+        PieceType[] types;
+        types = new PieceType[] {PieceType.CASTLE, PieceType.KNIGHT, PieceType.BISHOP,
+                PieceType.QUEEN, PieceType.KING, PieceType.BISHOP,
+                PieceType.KNIGHT, PieceType.CASTLE};
+        initialiseRow(types, 0, Colour.RED);
+        initialiseRow(types, 7, Colour.YELLOW);
+    }
+
+    // Returns the index of the given piece in the pieces array
+    // If the piece is not in the pieces array returns -1
+    // Note: bugs can arise when there are two of the same piece in the pieces array
     public int getIndexOfPiece(Piece piece){
         for(int i = 0; i < pieces.length; i++){
             if(piece == pieces[i]){
@@ -324,16 +372,9 @@ public class Board {
         return -1;
     }
 
-    public void initialiseBackRow(){
-
-        PieceType[] types;
-        types = new PieceType[] {PieceType.CASTLE, PieceType.KNIGHT, PieceType.BISHOP,
-                                    PieceType.QUEEN, PieceType.KING, PieceType.BISHOP,
-                                                    PieceType.KNIGHT, PieceType.CASTLE};
-        initialiseRow(types, 0, Colour.BLUE);
-        initialiseRow(types, 7, Colour.YELLOW);
-    }
-
+    // Adds a full row of pieces of the given types and the given colour
+    // and in the given order to the board
+    // Currently the PieceType[] must be the same length as the board size
     public void initialiseRow(PieceType[] types, int row, Colour colour){
         // be given some names of pieces and initialise them; e,g (pawn, pawn, pawn, castle, castle,... king)
         if(types.length != size){
@@ -356,17 +397,18 @@ public class Board {
 
 
 
-
-    public void removePiece(Piece piece1){
+    // Removes the given piece from the pieces array
+    public void removePiece(Piece piece){
         int i=0;
-        for(Piece piece : pieces){
-            if(piece.equals(piece1)){
+        for(Piece p : pieces){
+            if(p.equals(piece)){
                 removePieceAtIndex(i);
             }
             i++;
         }
     }
 
+    // Removes the piece at the given index in the pieces array
     public void removePieceAtIndex(int index){
 
         if(pieces == null || index < 0 || index >= pieces.length){
@@ -384,7 +426,7 @@ public class Board {
         pieces = newPieces;
     }
 
-    //Make work with multiple piece arguments to clean up initialisePawn method (ellipse)
+    // Appends the given piece into the pieces array
     public void appendPiece(Piece piece){
 
         if(pieces == null){
@@ -400,17 +442,14 @@ public class Board {
         pieces = newPieces;
     }
 
+    // Appends all the pieces in the given piece array to the pieces array
     public void appendPiece(Piece... newPieces){
         for(Piece piece : newPieces){
             appendPiece(piece);
         }
     }
-    public void printPieces(){
-        for(Piece piece : pieces){
-            System.out.println(piece.getType() + " position " + piece.position.x + " " + piece.position.y);
-        }
-    }
 
+    // Prints the board to system output
     public void printBoard(){
         for(int j = size - 1 ; j >= 0 ; j--){
             printRow(j);
@@ -418,16 +457,7 @@ public class Board {
         printLowerIndex();
     }
 
-//    public void printRow(int rowIndex){
-//        String row = "";
-//        Piece piece;
-//        for(int i = 0; i < size; i++){
-//            piece = getPieceAtPosition(i,rowIndex);
-//            row = row + getPieceString(piece);
-//        }
-//        System.out.println(row + (rowIndex+1));
-//    }
-
+    // Prints the string representation of each board position in the given row of the board
     public void printRow(int rowIndex){
         String row = "";
         Position position;
@@ -438,24 +468,7 @@ public class Board {
         System.out.println(row + (char)27 + "[30m" + (rowIndex+1));
     }
 
-    public String getPieceString(Piece piece){
-        String string = "";
-        if(piece == null ){
-            string =  "[ ] ";
-        }else{
-            switch(piece.colour) {
-                case YELLOW:
-                    string = (char)27 + "[30m" + "[" + piece.getType() + "] ";
-                    break;
-                case BLUE:
-                    string = (char)27 + "[30m" + "[" + (char)27 + "[31m"
-                            + piece.getType() + (char)27 + "[30m" + "] ";
-                    break;
-            }
-        }
-        return string;
-    }
-
+    // Returns the string representation of the given board position
     public String getBoardPositionString(Position position){
         String string = "";
         String red = (char)27 + "[31m";
@@ -475,7 +488,7 @@ public class Board {
                 case YELLOW:
                     string = tileColour + "[" + yellow + piece.getType() + tileColour + "] ";
                     break;
-                case BLUE:
+                case RED:
                     string = tileColour + "[" + red
                             + piece.getType() + tileColour + "] ";
                     break;
@@ -484,6 +497,8 @@ public class Board {
         return string;
     }
 
+    // Prints the coordinates of the board with the proper spacing
+    // to line up with the string representation of each position
     public void printLowerIndex(){
         String row = " ";
         for(int i = 1; i <= size; i++){
@@ -492,6 +507,7 @@ public class Board {
         System.out.println(row);
     }
 
+    // Returns a position array of all the possible position in the board
     public Position[] getAllPositionsOnBoard(){
         Position[] positions = new Position[size*size];
         for(int i = 0; i < size; i++){

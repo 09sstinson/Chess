@@ -49,7 +49,7 @@ public class InputHandler {
         //System.out.println("Enter a position on the board");
         int[] vals = getIntsFromPlayer();
         position = new Position(vals[0]-1, vals[1]-1);
-        while (!position.isInBoard()){
+        while (!position.isInGrid(Board.size)){
             System.out.println("Position not on board. Enter a position that is on the board");
             vals = getIntsFromPlayer();
             position = new Position(vals[0]-1, vals[1]-1);

@@ -9,18 +9,18 @@ public class ChessTest {
     Position p1 = new Position(8, 9);
     Position p2 = new Position(2, 2);
 
-    Piece piece1 = new Pawn(Colour.BLUE, 1 , 1);
-    Piece piece2 = new Pawn(Colour.BLUE, 3 , 1);
-    Piece piece3 = new Pawn(Colour.BLUE, 2 , 2);
-    Piece piece4 = new Pawn(Colour.BLUE, 2 , 2);
+    Piece piece1 = new Pawn(Colour.RED, 1 , 1);
+    Piece piece2 = new Pawn(Colour.RED, 3 , 1);
+    Piece piece3 = new Pawn(Colour.RED, 2 , 2);
+    Piece piece4 = new Pawn(Colour.RED, 2 , 2);
     Piece piece5 = new Pawn(Colour.YELLOW, 2 ,2);
 
 
 
     @Test
-    public void testIsInBoard(){
-        assertEquals(p2.isInBoard(), true);
-        assertEquals(p1.isInBoard(), false);
+    public void testIsInGrid(){
+        assertEquals(p2.isInGrid(Board.size), true);
+        assertEquals(p1.isInGrid(Board.size), false);
     }
 
     @Test
@@ -60,10 +60,6 @@ public class ChessTest {
         assertTrue(b.willFriendlyKingBeChecked(new King(Colour.YELLOW,3,3), new Position(3,2)));
     }
 
-    @Test
-    public void testPrintPieces(){
-        b.printPieces();
-    }
 
     @Test
     public void testPrintBoard(){
@@ -109,6 +105,6 @@ public class ChessTest {
     @Test
     public void testClosestCorner(){
         Position p = new Position(2,6);
-        System.out.println(p.closestCorner());
+        System.out.println(p.closestCorner(Board.size));
     }
 }
