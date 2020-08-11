@@ -1,6 +1,6 @@
 package com.sstinson.chess;
 
-public class Board {
+public class Board{
 
     public static final int size = 8;
     public Piece[] pieces; // contains all the pieces currently on the board
@@ -62,6 +62,7 @@ public class Board {
     }
 
     // Returns true if the piece can perform a castle by moving to the position
+    // TODO: make this less messy
     public boolean checkCastle(Piece piece, Position position) {
         if(piece.type == PieceType.KING){
             King king = (King) piece;
@@ -71,8 +72,7 @@ public class Board {
             }
             if(newPiece.type == PieceType.CASTLE &&
               newPiece.moveCounter == 0 && king.moveCounter == 0 &&
-              king.isValidCastle(position)){
-                //check if position is controlled
+              king.isValidCastle(position) && !isFriendlyKingChecked(king.colour)){
                 Position[] positions = king.position.getPositionsInBetween(position);
                 for(Position p: positions){
                     if(isPositionControlled(p, king.getEnemyColour())){
@@ -95,6 +95,7 @@ public class Board {
     }
 
     // Returns true if the piece can perform an en passant move by moving to the position
+    // TODO: make this less messy
     public boolean checkEnPassant(Piece piece, Position position){
         if(piece.type == PieceType.PAWN){
             Pawn pawn = (Pawn) piece;
@@ -106,7 +107,7 @@ public class Board {
             }
 
             if(pawn.isValidTake(position) && position.minus(newPiece.position).equals(0, pawn.direction) &&
-                    newPiece == lastMovedPiece){
+                    newPiece == lastMovedPiece && !isPositionFilled(position)){
                 return true;
             }
             return false;
@@ -217,18 +218,20 @@ public class Board {
 
     // Returns true if moving the given piece to the given position will cause the
     // king of the piece to be in check
-    // Bug: does not check if en passant will remove king from check
+    // Fixed Bug: does not check if en passant will remove king from check
+    // Note: castling can't remove king from check
+    // TODO: make this less messy
     public boolean willFriendlyKingBeChecked(Piece piece, Position position){
-
-            if(containsEnemyKing(piece, position)){
-                //Friendly king will not be checked in this case because the opposing
-                //king will be captured, ending the game
-                return false;
-            }
             Piece king = getKing(piece.colour);
             Position original = piece.position;
-            Piece newPiece = getPieceAtPosition(position);
 
+            Piece newPiece;
+            if(checkEnPassant(piece, position)){
+                Pawn pawn = (Pawn) piece;
+                newPiece = getPieceAtPosition(position.minus(new Position(0, pawn.direction)));
+            }else {
+                newPiece = getPieceAtPosition(position);
+            }
 
             if(newPiece != null && newPiece.colour == piece.getEnemyColour()){
                 removePiece(newPiece);

@@ -11,6 +11,10 @@ public class InputHandler {
         this.board = board;
     }
 
+    // Returns a piece of the player's colour that can take a turn from user input
+    // The user enters the position of a piece on the board
+    // The piece must be of the player's colour and able to take a turn,
+    // otherwise the user is prompted to enter a different position
     public Piece getPieceFromPlayer(Player player){
         Position position;
 
@@ -30,6 +34,10 @@ public class InputHandler {
         return piece;
     }
 
+    // Returns a position which the piece can take a turn by moving to
+    // If the user enters a position that the piece cannot move to,
+    // the user is prompted to enter a different position
+    // Never returns null
     public Position getMoveFromPlayer(Player player, Piece piece){
         Position position;
 
@@ -43,6 +51,9 @@ public class InputHandler {
         return position;
     }
 
+    // Returns a position that is in the board from user input
+    // If the user enters a position not on the board, the user is prompted to re enter the position
+    // Never returns null
     public Position getPositionFromPlayer(){
         Position position;
 
@@ -58,6 +69,10 @@ public class InputHandler {
         return position;
     }
 
+
+    // Returns an int[] from user input
+    // If user does not enter 2 integers then the user is prompted to enter a new pair of integers
+    // Never returns null
     public int[] getIntsFromPlayer(){
 
         int[] out = tryGetIntsFromPlayer();
@@ -71,6 +86,9 @@ public class InputHandler {
         return out;
     }
 
+    // Returns a PieceType from user input
+    // If user does not enter an allowable char then the user is prompted to enter a new char
+    // Never returns null
     public PieceType getPieceTypeFromPlayer(){
         System.out.println("Promotion! Enter the piece you want to promote the pawn to: Q, B, H, or C");
         PieceType type = tryGetPieceTypeFromPlayer();
@@ -83,6 +101,8 @@ public class InputHandler {
         return type;
     }
 
+    // Returns a PieceType based on user inputting a char
+    // Returns null if no allowable char is entered
     public PieceType tryGetPieceTypeFromPlayer(){
         String str = scn.nextLine();
         switch(str){
@@ -95,6 +115,8 @@ public class InputHandler {
         }
     }
 
+    // Returns int[] {x,y} if user enters 2 integers as the next inputs
+    // Returns null if user enters any other inputs
     public int[] tryGetIntsFromPlayer(){
 
         int x,y;

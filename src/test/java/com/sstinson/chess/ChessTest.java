@@ -107,4 +107,5 @@ public class ChessTest {
         Position p = new Position(2,6);
         System.out.println(p.closestCorner(Board.size));
     }
+
 }
