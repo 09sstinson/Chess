@@ -1,9 +1,12 @@
 package com.sstinson.chess;
 
+import java.util.ArrayList;
+
 public class Board{
 
     public static final int size = 8;
-    public Piece[] pieces; // contains all the pieces currently on the board
+    //public Piece[] pieces; // contains all the pieces currently on the board
+    public ArrayList<Piece> pieces = new ArrayList<>();
     public Piece lastMovedPiece; // stores the last moved piece for the checkEnPassant method
 
     Board(){
@@ -90,7 +93,7 @@ public class Board{
     public void resolveEnPassant(Piece piece, Position position){
         if(checkEnPassant(piece, position)){
             Pawn pawn = (Pawn) piece;
-            removePiece(getPieceAtPosition(position.minus(new Position(0, pawn.direction))));
+            pieces.remove(getPieceAtPosition(position.minus(new Position(0, pawn.direction))));
         }
     }
 
@@ -118,8 +121,9 @@ public class Board{
     // When a piece is promoted, this method replaces it with a new piece of the given type
     // at the same position and with the same colour as the original piece
     public void resolvePromotion(Piece piece, PieceType pieceType){
-        int index = getIndexOfPiece(piece);
-        pieces[index] = createPieceByPieceType(pieceType, piece.colour, piece.position);
+        int index = pieces.indexOf(piece);
+        Piece p = createPieceByPieceType(pieceType, piece.colour, piece.position);
+        pieces.set(index, p);
     }
 
     // Returns a piece of the given type at the given position with the given colour
@@ -234,22 +238,15 @@ public class Board{
             }
 
             if(newPiece != null && newPiece.colour == piece.getEnemyColour()){
-                removePiece(newPiece);
+                pieces.remove(newPiece);
             }
             piece.position = position;
             boolean bool = isPositionControlled(king.position, king.getEnemyColour());
             piece.position = original;
             if(newPiece != null && newPiece.colour == piece.getEnemyColour()){
-                appendPiece(newPiece);
+                pieces.add(newPiece);
             }
             return bool;
-    }
-
-    // Returns true if the given position contains
-    // the king of the opposite colour to the given piece
-    public boolean containsEnemyKing(Piece piece, Position position){
-        Piece king = getKing(piece.getEnemyColour());
-        return position.equals(king.position);
     }
 
     // Returns true if there are any pieces blocking the path from
@@ -282,17 +279,12 @@ public class Board{
         resolveCastle(piece, position);
         if(isPositionFilled(position)){
             Piece newPiece = getPieceAtPosition(position);
-            removePiece(newPiece);
+            pieces.remove(newPiece);
         }
         piece.position = position;
         piece.moveCounter++;
         lastMovedPiece = piece;
     }
-
-
-
-
-
 
     // Returns true if the given position contains a piece of the given colour
     public boolean hasFriendlyPiece(Colour colour, Position position){
@@ -347,7 +339,8 @@ public class Board{
     // Adds the front row of pawns to the board for both players
     public void initialisePawns(){
         for(int i = 0; i<size; i++){
-            appendPiece(new Pawn(Colour.RED, i, 1 ), new Pawn(Colour.YELLOW, i, 6));
+            pieces.add(new Pawn(Colour.RED, i, 1 ));
+            pieces.add(new Pawn(Colour.YELLOW, i, 6));
         }
     }
 
@@ -362,18 +355,6 @@ public class Board{
         initialiseRow(types, 7, Colour.YELLOW);
     }
 
-    // Returns the index of the given piece in the pieces array
-    // If the piece is not in the pieces array returns -1
-    // Note: bugs can arise when there are two of the same piece in the pieces array
-    public int getIndexOfPiece(Piece piece){
-        for(int i = 0; i < pieces.length; i++){
-            if(piece == pieces[i]){
-                return i;
-            }
-        }
-        System.out.println("Error piece not found");
-        return -1;
-    }
 
     // Adds a full row of pieces of the given types and the given colour
     // and in the given order to the board
@@ -387,69 +368,15 @@ public class Board{
             int i = 0;
             for (PieceType type : types) {
                 switch (type) {
-                    case PAWN: appendPiece(new Pawn(colour, i++, row )); break;
-                    case CASTLE: appendPiece(new Castle(colour, i++, row)); break;
-                    case KNIGHT: appendPiece(new Knight(colour, i++, row)); break;
-                    case BISHOP: appendPiece(new Bishop(colour, i++, row)); break;
-                    case QUEEN: appendPiece(new Queen(colour, i++, row)); break;
-                    case KING: appendPiece(new King(colour, i++, row)); break;
+                    case PAWN: pieces.add(new Pawn(colour, i++, row )); break;
+                    case CASTLE: pieces.add(new Castle(colour, i++, row)); break;
+                    case KNIGHT: pieces.add(new Knight(colour, i++, row)); break;
+                    case BISHOP: pieces.add(new Bishop(colour, i++, row)); break;
+                    case QUEEN: pieces.add(new Queen(colour, i++, row)); break;
+                    case KING: pieces.add(new King(colour, i++, row)); break;
                 }
             }
 
-    }
-
-
-
-    // Removes the given piece from the pieces array
-    public void removePiece(Piece piece){
-        int i=0;
-        for(Piece p : pieces){
-            if(p.equals(piece)){
-                removePieceAtIndex(i);
-            }
-            i++;
-        }
-    }
-
-    // Removes the piece at the given index in the pieces array
-    public void removePieceAtIndex(int index){
-
-        if(pieces == null || index < 0 || index >= pieces.length){
-            System.out.println("array is empty or index out of bounds");
-            return;
-        }
-        Piece[] newPieces = new Piece[pieces.length - 1];
-
-        for(int i = 0, k = 0; i < pieces.length ; i++){
-            if(i == index){
-                continue;
-            }
-            newPieces[k++] = pieces[i];
-        }
-        pieces = newPieces;
-    }
-
-    // Appends the given piece into the pieces array
-    public void appendPiece(Piece piece){
-
-        if(pieces == null){
-            pieces = new Piece[] {piece};
-            return;
-        }
-
-        Piece[] newPieces = new Piece[pieces.length + 1];
-        for(int i = 0; i < pieces.length ; i++){
-            newPieces[i] = pieces[i];
-        }
-        newPieces[pieces.length] = piece;
-        pieces = newPieces;
-    }
-
-    // Appends all the pieces in the given piece array to the pieces array
-    public void appendPiece(Piece... newPieces){
-        for(Piece piece : newPieces){
-            appendPiece(piece);
-        }
     }
 
     // Prints the board to system output

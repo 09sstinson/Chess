@@ -30,9 +30,9 @@ public class ChessTest {
 
     @Test
     public void testIsPosFilled(){
-        b.appendPiece(piece1);
-        b.appendPiece( piece3);
-        b.appendPiece (piece2);
+        b.pieces.add(piece1);
+        b.pieces.add( piece3);
+        b.pieces.add (piece2);
         assertEquals(b.isPositionFilled(2,2), true);
         assertEquals(b.isPositionFilled(1,2), false);
     }
@@ -48,8 +48,8 @@ public class ChessTest {
 
     @Test
     public void testHasFriendlyPiece(){
-        b.appendPiece(piece1);
-        b.appendPiece(piece3);
+        b.pieces.add(piece1);
+        b.pieces.add(piece3);
         assertTrue(b.hasFriendlyPiece(piece1, p2));
         assertFalse(b.hasFriendlyPiece(piece1, p1));
     }
@@ -64,7 +64,7 @@ public class ChessTest {
     @Test
     public void testPrintBoard(){
         b.printBoard();
-        b.pieces[0].position = new Position(2,3);
+        b.pieces.get(0).position = new Position(2,3);
         b.printBoard();
     }
 
@@ -98,7 +98,7 @@ public class ChessTest {
     @Test
     public void testPromotePiece(){
         b.printBoard();
-        b.resolvePromotion(b.pieces[0], PieceType.QUEEN);
+        b.resolvePromotion(b.pieces.get(0), PieceType.QUEEN);
         b.printBoard();
     }
 
